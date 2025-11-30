@@ -16,7 +16,7 @@ const firebaseConfig = {
     authDomain: "cloudproject-19452.firebaseapp.com",
     databaseURL: "https://cloudproject-19452-default-rtdb.firebaseio.com",
     projectId: "cloudproject-19452",
-    storageBucket: "cloudproject-19452.appspot.com",   
+    storageBucket: "cloudproject-19452.appspot.com",
     messagingSenderId: "272815776316",
     appId: "1:272815776316:web:5bd116ad380533a3a4d939",
     measurementId: "G-CYZTS1BPH6"
@@ -30,7 +30,7 @@ const auth = getAuth(app);
 
 let currentUserId = null;
 let currentUserName = null;
-let currentUserRole = null; 
+let currentUserRole = null;
 
 // ==========================================================
 // 💡 ÇIKIŞ YAPMA FONKSİYONU
@@ -40,7 +40,7 @@ async function signOutUser() {
         await signOut(auth);
         alert("Başarıyla çıkış yapıldı!");
         // Çıkış yaptıktan sonra giriş sayfamız olan index.html'e yönlendiriyoruz
-        window.location.href = "index.html"; 
+        window.location.href = "index.html";
     } catch (error) {
         console.error("Çıkış Hatası:", error);
         alert("Çıkış yapılırken bir hata oluştu: " + error.message);
@@ -62,12 +62,12 @@ async function getRoleAndNavigate(user) {
             currentUserRole = userData.role;
         } else {
             console.warn("Kullanıcı veritabanında bulunamadı. Rol atanıyor: student");
-            currentUserRole = "student"; 
+            currentUserRole = "student";
         }
-        
+
         // Yönlendirme Mantığı
         const currentPath = window.location.pathname.split("/").pop();
-        
+
         if (currentUserRole === 'teacher' && currentPath !== 'teacher.html') {
             console.log("Öğretmen giriş yaptı. teacher.html'e yönlendiriliyor.");
             window.location.href = "teacher.html";
@@ -110,7 +110,7 @@ async function signUpEmailPassword() {
             role: role,
             createdAt: new Date().toISOString()
         });
-        
+
         console.log(`Kullanıcı başarıyla kaydoldu (${role}):`, user.uid);
         alert(`✅ Kayıt başarılı! Rol: ${role}. Otomatik giriş yapıldı.`);
 
@@ -172,41 +172,41 @@ onAuthStateChanged(auth, async (user) => {
     const loginStatusElement = document.getElementById("login-status");
     const emailInput = document.getElementById("auth-email");
     const passwordInput = document.getElementById("auth-password");
-    const roleSelect = document.getElementById("auth-role"); 
+    const roleSelect = document.getElementById("auth-role");
     const signInButtonDiv = document.getElementById("sign-in-buttons"); // index.html'deki div
     const signOutButton = document.getElementById("sign-out-button");
 
-    
+
     // Hangi sayfada olduğumuzu belirle
     const currentPath = window.location.pathname.split("/").pop();
     const isIndexPage = currentPath === 'index.html' || currentPath === '';
     const isScannerPage = currentPath === 'qr.html';
     const isTeacherPage = currentPath === 'teacher.html';
-    
+
     if (user) {
         currentUserId = user.uid;
         currentUserName = user.email.split("@")[0] || "Bilinmeyen Kullanıcı";
-        
+
         // Rolü al 
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
-        currentUserRole = snapshot.exists() ? snapshot.val().role : "student"; 
+        currentUserRole = snapshot.exists() ? snapshot.val().role : "student";
 
         // 💡 Eğer kullanıcı giriş yaptıysa ve index.html'deyse, yönlendir
         if (isIndexPage) {
             getRoleAndNavigate(user);
             return; // Yönlendirme yapıldı, daha fazla işlem yapmaya gerek yok
         }
-        
+
         // UI Güncelleme (Giriş Formu)
         if (loginStatusElement) {
-            loginStatusElement.innerText = `Oturum: ${currentUserName} (${currentUserRole.toUpperCase()})`; 
+            loginStatusElement.innerText = `Oturum: ${currentUserName} (${currentUserRole.toUpperCase()})`;
             loginStatusElement.classList.remove("text-red-500");
             loginStatusElement.classList.add("text-green-500");
         }
-        
+
         // 💡 Oturum açma formunu gizle, çıkış butonunu göster (Eğer formlar bu sayfalarda varsa)
-        if (signInButtonDiv) signInButtonDiv.style.display = "none"; 
+        if (signInButtonDiv) signInButtonDiv.style.display = "none";
         if (signOutButton) signOutButton.style.display = "block";
 
 
@@ -220,7 +220,7 @@ onAuthStateChanged(auth, async (user) => {
                 window.stopQrCodeScanner();
             }
         }
-        
+
         if (isTeacherPage) {
             const contentDiv = document.querySelector('.teacher-content');
             if (currentUserRole !== 'teacher') {
@@ -249,10 +249,10 @@ onAuthStateChanged(auth, async (user) => {
 
         if (emailInput) emailInput.style.display = "block";
         if (passwordInput) passwordInput.style.display = "block";
-        if (roleSelect) roleSelect.style.display = "block"; 
+        if (roleSelect) roleSelect.style.display = "block";
         if (signInButtonDiv) signInButtonDiv.style.display = "flex";
         if (signOutButton) signOutButton.style.display = "none";
-        
+
         if (isScannerPage) window.stopQrCodeScanner();
     }
 });
@@ -312,7 +312,7 @@ async function generateQRCodeSession() {
         document.getElementById("status").innerText = "❌ Hata: Sadece Öğretmenler yoklama oturumu başlatabilir!";
         return;
     }
-    
+
     const lectureName = document.getElementById("lectureName").value;
     if (!lectureName) {
         alert("Lütfen bir ders adı girin.");

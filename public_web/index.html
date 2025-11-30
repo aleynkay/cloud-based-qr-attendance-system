@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>AttendAI - Giriş</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- deneme nesibe github-->
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -20,11 +21,11 @@
 
         <input type="email" id="auth-email" placeholder="E-posta Adresi"
             class="w-full p-3 mb-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm">
-        
+
         <input type="password" id="auth-password" placeholder="Şifre (Min 6 Karakter)"
             class="w-full p-3 mb-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm">
 
-        <select id="auth-role" 
+        <select id="auth-role"
             class="w-full p-3 mb-5 border border-gray-300 rounded-xl bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm">
             <option value="" disabled selected>--- Rol Seçin (Sadece Kaydolurken) ---</option>
             <option value="teacher">Öğretmen</option>
@@ -32,18 +33,18 @@
         </select>
 
         <div id="sign-in-buttons" class="flex space-x-2">
-            <button onclick="signInEmailPassword()" 
+            <button onclick="signInEmailPassword()"
                 class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition duration-150 shadow-md">
                 Giriş Yap
             </button>
-            <button onclick="signUpEmailPassword()" 
+            <button onclick="signUpEmailPassword()"
                 class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition duration-150 shadow-md">
                 Kaydol
             </button>
         </div>
-        
-        <button id="sign-out-button" onclick="signOutUser()" 
-            class="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition duration-150" 
+
+        <button id="sign-out-button" onclick="signOutUser()"
+            class="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition duration-150"
             style="display: none;">
             Çıkış Yap
         </button>

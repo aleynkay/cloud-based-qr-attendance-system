@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>QR Scanner - AttendAI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+
+<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 text-white">
+
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-sm mb-6 border border-gray-700">
+    <p id="login-status" class="text-base font-semibold text-red-400 mb-4 text-center">Giriş Yapılmadı</p>
+
+        <input type="email" id="auth-email" style="display: none;">
+    <input type="password" id="auth-password" style="display: none;">
+    <select id="auth-role" style="display: none;"></select>
+    <div id="sign-in-buttons" class="flex space-x-2" style="display: none;"></div>
+    
+        <button id="sign-out-button" onclick="signOutUser()" 
+        class="w-full mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition duration-150" 
+        style="display: none;">
+        Çıkış Yap
+    </button>
+
+  </div>
+
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col items-center border border-gray-700">
+    <h2 class="text-3xl font-bold text-teal-400 mb-6">📷 Yoklama Taraması</h2>
+
+    <div id="qr-reader" class="w-full bg-black rounded-lg shadow-inner mb-6 border-2 border-teal-500" style="height: 300px;"></div>
+
+    <div class="w-full text-center">
+      <p class="text-sm font-medium text-gray-400 mb-1">🎯 Son Okunan Veri:</p>
+      <p id="last-scan" class="text-base text-white break-words mb-4 bg-gray-700 p-2 rounded-lg">Henüz veri yok</p>
+
+      <hr class="border-gray-700 my-4">
+
+      <p class="text-base font-medium text-gray-400 mb-1">🚀 Katılım Durumu:</p>
+      <p id="record-status" class="text-xl font-extrabold text-yellow-400">Tarama bekleniyor...</p>
+    </div>
+  </div>
+
+    <script type="module" src="firebase.js"></script>
+
+  <script>
+    let html5QrCode = null;
+    const qrCodeId = "qr-reader";
+
+    function onScanSuccess(decodedText, decodedResult) {
+      document.getElementById('last-scan').innerText = decodedText;
+      document.getElementById('record-status').innerText = '⏳ Veritabanına Kayıt Yapılıyor...';
+      console.log(`QR Kod Verisi: ${decodedText}`); 
+
+      if (window.recordAttendance) {
+        window.recordAttendance(decodedText);
+      } else {
+        console.error("⚠️ recordAttendance fonksiyonu bulunamadı!");
+      }
+    }
+
+    function onScanFailure(error) {
+      // sessizce geç
+    }
+
+    // 📸 Kamera Başlatma
+    window.startQrCodeScanner = function () {
+      if (html5QrCode) {
+        html5QrCode.stop().catch(err => console.warn("Önceki tarayıcı durdurulurken hata:", err));
+      }
+      
+      html5QrCode = new Html5Qrcode(qrCodeId);
+      const config = { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true };
+
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        onScanFailure
+      ).catch(err => {
+        document.getElementById('record-status').innerText = '❌ Kamera Başlatılamadı! Lütfen izinleri kontrol edin.';
+        console.error("Kamera Başlatma Hatası:", err);
+      });
+    }
+
+    // 📴 Kamera Durdurma
+    window.stopQrCodeScanner = function () {
+      if (html5QrCode) {
+        html5QrCode.stop().catch(err => console.error("Tarayıcı durdurulurken hata:", err));
+        html5QrCode = null; 
+      }
+    }
+
+  </script>
+</body>
+</html>

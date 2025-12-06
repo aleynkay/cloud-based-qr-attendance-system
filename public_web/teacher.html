@@ -61,6 +61,43 @@
             <div id="qrcode-placeholder">QR Kod Burada Görünecek.</div>
         </div>
 
+        <hr class="my-8 border-gray-300">
+
+        <!-- AI Anomaly Detection Bölümü -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                <span class="text-purple-600">🤖</span> AI Anomali Tespiti
+            </h2>
+            
+            <div class="mb-4">
+                <label for="session-id-input" class="block text-sm font-medium text-gray-700 mb-2">
+                    Oturum ID (Boş bırakılırsa tüm oturumlar analiz edilir):
+                </label>
+                <input type="text" id="session-id-input" placeholder="Oturum ID girin (opsiyonel)"
+                    class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 text-sm">
+            </div>
+
+            <button onclick="detectAnomalies()"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-[1.01] shadow-lg mb-4">
+                <span role="img" aria-label="AI">🔍</span> Anomali Tespiti Yap
+            </button>
+
+            <div id="anomaly-status" class="text-sm font-medium text-center mb-4 text-gray-600"></div>
+
+            <!-- Anomali Sonuçları -->
+            <div id="anomaly-results" class="hidden">
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">📊 Özet İstatistikler</h3>
+                    <div id="anomaly-summary" class="text-sm text-gray-700"></div>
+                </div>
+
+                <div class="max-h-96 overflow-y-auto">
+                    <h3 class="font-bold text-lg mb-3 text-gray-800">🚨 Tespit Edilen Anomaliler</h3>
+                    <div id="anomaly-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script type="module" src="firebase.js"></script>

@@ -1,4 +1,6 @@
-﻿// Firebase modüllerini import et
+﻿
+
+// Firebase modüllerini import et
 console.log("🔥 firebase.js yüklendi");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -374,3 +376,143 @@ window.testRealtime = testRealtime;
 // ✅ Global e-posta/şifre fonksiyonları
 window.signInEmailPassword = signInEmailPassword;
 window.signUpEmailPassword = signUpEmailPassword;
+
+// ==========================================================
+// 🤖 AI ANOMALY DETECTION FONKSİYONU
+// ==========================================================
+const AI_SERVICE_URL = "http://localhost:8000"; // AI servis URL'i
+
+async function detectAnomalies() {
+    console.log("🤖 detectAnomalies() tetiklendi");
+
+    if (!currentUserId || currentUserRole !== 'teacher') {
+        alert("❌ Hata: Sadece Öğretmenler anomali tespiti yapabilir!");
+        return;
+    }
+
+    const sessionIdInput = document.getElementById("session-id-input");
+    const sessionId = sessionIdInput ? sessionIdInput.value.trim() : null;
+    const statusElement = document.getElementById("anomaly-status");
+    const resultsDiv = document.getElementById("anomaly-results");
+    const summaryDiv = document.getElementById("anomaly-summary");
+    const listDiv = document.getElementById("anomaly-list");
+
+    if (statusElement) {
+        statusElement.innerText = "⏳ AI anomali tespiti yapılıyor...";
+        statusElement.classList.remove("text-gray-600", "text-red-500", "text-green-500");
+        statusElement.classList.add("text-blue-500");
+    }
+
+    if (resultsDiv) {
+        resultsDiv.classList.add("hidden");
+    }
+
+    try {
+        const requestBody = {
+            session_id: sessionId || null,
+            student_id: null,
+            limit: 100
+        };
+
+        const response = await fetch(`${AI_SERVICE_URL}/detect-anomalies`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (statusElement) {
+            statusElement.innerText = `✅ Analiz tamamlandı! ${data.anomaly_count} anomali tespit edildi.`;
+            statusElement.classList.remove("text-blue-500", "text-red-500");
+            statusElement.classList.add("text-green-500");
+        }
+
+        // Özet istatistikleri göster
+        if (summaryDiv) {
+            summaryDiv.innerHTML = `
+                <p><strong>Toplam Kayıt:</strong> ${data.total_records}</p>
+                <p><strong>Anomali Sayısı:</strong> <span class="text-red-600 font-bold">${data.anomaly_count}</span></p>
+                <p><strong>Anomali Oranı:</strong> <span class="text-orange-600 font-bold">${data.anomaly_rate}</span></p>
+            `;
+        }
+
+        // Anomali listesini göster
+        if (listDiv && data.results) {
+            listDiv.innerHTML = "";
+
+            const anomalies = data.results.filter(r => r.anomaly.is_anomaly);
+            
+            if (anomalies.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                        <p class="text-green-700 font-semibold">✅ Anomali tespit edilmedi. Tüm kayıtlar normal görünüyor.</p>
+                    </div>
+                `;
+            } else {
+                anomalies.forEach((item, index) => {
+                    const record = item.record;
+                    const anomaly = item.anomaly;
+                    
+                    const severityColors = {
+                        "low": "bg-yellow-50 border-yellow-300 text-yellow-800",
+                        "medium": "bg-orange-50 border-orange-300 text-orange-800",
+                        "high": "bg-red-50 border-red-300 text-red-800"
+                    };
+
+                    const severityColor = severityColors[anomaly.severity] || severityColors.medium;
+                    const severityText = {
+                        "low": "Düşük",
+                        "medium": "Orta",
+                        "high": "Yüksek"
+                    };
+
+                    const recordDate = new Date(record.timestamp);
+                    const formattedDate = recordDate.toLocaleString("tr-TR");
+
+                    const card = document.createElement("div");
+                    card.className = `${severityColor} border rounded-lg p-4`;
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-lg">Anomali #${index + 1}</h4>
+                            <span class="text-xs font-semibold px-2 py-1 rounded bg-white">
+                                ${severityText[anomaly.severity]} Risk
+                            </span>
+                        </div>
+                        <p class="text-sm mb-2"><strong>Öğrenci:</strong> ${record.studentName || record.studentId}</p>
+                        <p class="text-sm mb-2"><strong>Ders:</strong> ${record.lecture || "Bilinmiyor"}</p>
+                        <p class="text-sm mb-2"><strong>Tarih/Saat:</strong> ${formattedDate}</p>
+                        <p class="text-sm mb-2"><strong>Anomali Tipi:</strong> ${anomaly.anomaly_type}</p>
+                        <p class="text-sm mb-2"><strong>Skor:</strong> ${(anomaly.anomaly_score * 100).toFixed(1)}%</p>
+                        <p class="text-sm font-semibold mt-3"><strong>Sebep:</strong> ${anomaly.reason}</p>
+                    `;
+                    listDiv.appendChild(card);
+                });
+            }
+        }
+
+        if (resultsDiv) {
+            resultsDiv.classList.remove("hidden");
+        }
+
+        console.log("✅ Anomali tespiti başarılı:", data);
+
+    } catch (error) {
+        console.error("❌ Anomali tespiti hatası:", error);
+        
+        if (statusElement) {
+            statusElement.innerText = `❌ Hata: ${error.message}. AI servisinin çalıştığından emin olun (${AI_SERVICE_URL})`;
+            statusElement.classList.remove("text-blue-500", "text-green-500");
+            statusElement.classList.add("text-red-500");
+        }
+
+        alert(`Anomali tespiti sırasında hata oluştu: ${error.message}\n\nAI servisinin çalıştığından emin olun:\n${AI_SERVICE_URL}`);
+    }
+}
+window.detectAnomalies = detectAnomalies;
